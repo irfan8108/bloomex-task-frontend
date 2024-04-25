@@ -41,6 +41,8 @@
                 'text-danger': task.status === 'to-do',
                 'text-success': task.status === 'finished',
                 'text-warning': task.status === 'in-progress',
+                'text-secondary': task.status === 'pending',
+                'text-info': task.status === 'in-review',
               }"
             >
               {{ capitalizeFirstChar(task.status) }}
@@ -81,8 +83,7 @@ export default {
       task: "",
       editedTask: null,
       editedTaskId: null,
-      statuses: ["to-do", "in-progress", "finished"],
-
+      statuses: ["to-do", "in-progress", "pending", "in-review", "finished"],
       /* Status could be: 'to-do' / 'in-progress' / 'finished' */
       tasks: [],
     };
@@ -101,7 +102,7 @@ export default {
      */
     changeStatus(index, id) {
       let newIndex = this.statuses.indexOf(this.tasks[index].status);
-      if (++newIndex > 2) newIndex = 0;
+      if (++newIndex > 4) newIndex = 0;
       this.tasks[index].status = this.statuses[newIndex];
 
       axios.patch('tasks/' + id, {
@@ -166,20 +167,19 @@ export default {
         });
 
         axios.post('tasks', {
-        title: this.task
-      }).then(() => {
-        this.task = "";
-      });
+          title: this.task
+        }).then(() => {
+          this.task = "";
+          this.getTodos();
+        });
       }
-
-      this.task = "";
     },
 
     getTodos() {
       console.log('loading all tasks..');
       axios.get('tasks')
         .then(response => {
-          this.tasks = response.data;
+          this.tasks = response.data.data;
         });
     },
 
